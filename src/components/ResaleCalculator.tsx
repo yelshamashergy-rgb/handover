@@ -1,7 +1,7 @@
 import { useState } from 'react'
 import type { Property } from '../lib/types'
 import { propertyStats } from '../lib/payments'
-import { resaleCosts, marketHasFees, marketIsEstimate } from '../lib/costs'
+import { resaleCosts, marketHasFees, marketIsEstimate, defaultResaleThreshold } from '../lib/costs'
 import { money, pct } from '../lib/format'
 import { Check, Lock } from '../ui/icons'
 import { cx, inputCls } from '../ui/primitives'
@@ -90,7 +90,11 @@ export function ResaleCalculator({
               value={threshold}
               onChange={(e) => onThresholdChange(Number(e.target.value.replace(/[^0-9.]/g, '')) || 0)}
             />
-            <span className="text-xs text-ink-faint">Emaar/Sobha ≈ 40% · Damac ≈ 30–35%.</span>
+            <span className="text-xs text-ink-faint">
+              {property.developer
+                ? `${property.developer} typically allows resale from ~${defaultResaleThreshold(property.developer)}% paid.`
+                : 'Emaar/Sobha ≈ 40% · Damac ≈ 30–35%.'}
+            </span>
           </label>
 
           {marketHasFees(property.market) && (

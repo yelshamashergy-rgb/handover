@@ -11,6 +11,34 @@ import { Alert } from '../ui/icons'
 const CURRENCIES: Currency[] = ['AED', 'USD', 'GBP', 'EUR', 'SAR']
 const MARKETS: Market[] = ['Dubai', 'Abu Dhabi', 'Sharjah', 'Ras Al Khaimah', 'Other']
 
+// Major UAE off-plan developers — autocomplete only; free text still allowed.
+const DEVELOPERS = [
+  'Emaar',
+  'Damac',
+  'Sobha',
+  'Nakheel',
+  'Aldar',
+  'Meraas',
+  'Dubai Properties',
+  'Azizi',
+  'Danube',
+  'Binghatti',
+  'Ellington',
+  'Select Group',
+  'Omniyat',
+  'Deyaar',
+  'Samana',
+  'Object 1',
+  'Reportage',
+  'Nshama',
+  'MAG',
+  'Bloom',
+  'Modon',
+  'Arada',
+  'Alef',
+  'RAK Properties',
+]
+
 const iso = (d: Date) => d.toISOString().slice(0, 10)
 
 export type NewPropertyData = Omit<Property, 'id' | 'createdAt'>
@@ -172,13 +200,19 @@ export function PropertyForm({
             autoFocus
           />
         </Field>
-        <Field label="Developer">
+        <Field label="Developer" hint="Sets the typical resale threshold.">
           <input
             className={inputCls}
+            list="hb-developers"
             value={f.developer}
             onChange={(e) => set('developer', e.target.value)}
             placeholder="Emaar, Damac…"
           />
+          <datalist id="hb-developers">
+            {DEVELOPERS.map((d) => (
+              <option key={d} value={d} />
+            ))}
+          </datalist>
         </Field>
         <div className="grid grid-cols-2 gap-4">
           <Field label="Market" hint="Sets local fees & rules.">
