@@ -1,4 +1,4 @@
-import type { Market } from './types'
+import type { Market, UnitType } from './types'
 
 /**
  * Bundled, on-device reference data — typical GROSS rental yields by community.
@@ -70,15 +70,48 @@ export const MARKET_AVG_YIELD: Record<Market, number | null> = {
   Other: null,
 }
 
+/**
+ * Unit-type yield multipliers, applied to the area's (≈2-bed apartment) baseline.
+ * Smaller units yield more, villas/large units less — a large, consistent,
+ * well-documented pattern (e.g. Marina studios ~6.5% vs 4-beds ~3.9%). Indicative.
+ */
+export const UNIT_TYPES: UnitType[] = ['Studio', '1 Bed', '2 Bed', '3 Bed', '4+ Bed', 'Townhouse', 'Villa']
+
+const TYPE_FACTOR: Record<UnitType, number> = {
+  Studio: 1.15,
+  '1 Bed': 1.05,
+  '2 Bed': 1.0,
+  '3 Bed': 0.92,
+  '4+ Bed': 0.82,
+  Townhouse: 0.9,
+  Villa: 0.85,
+}
+
+export function typeFactor(t?: UnitType): number {
+  return t ? TYPE_FACTOR[t] : 1
+}
+
+const round1 = (n: number) => Math.round(n * 10) / 10
+
 export function areasFor(market: Market): string[] {
   return DATA[market].map((b) => b.area)
 }
 
-export function benchmarkFor(market: Market, area?: string): YieldBenchmark | null {
+export function benchmarkFor(market: Market, area?: string, unitType?: UnitType): YieldBenchmark | null {
   if (!area) return null
   const a = area.trim().toLowerCase()
   if (!a) return null
-  return DATA[market].find((b) => b.area.toLowerCase() === a) ?? null
+  const base = DATA[market].find((b) => b.area.toLowerCase() === a) ?? null
+  if (!base) return null
+  const f = typeFactor(unitType)
+  if (f === 1) return base
+  return { area: base.area, min: round1(base.min * f), typ: round1(base.typ * f), max: round1(base.max * f) }
+}
+
+/** Emirate-average gross yield, type-adjusted — used when no area benchmark matches. */
+export function averageYieldFor(market: Market, unitType?: UnitType): number | null {
+  const avg = MARKET_AVG_YIELD[market]
+  return avg == null ? null : round1(avg * typeFactor(unitType))
 }
 
 export function hasBenchmarks(market: Market): boolean {

@@ -75,6 +75,7 @@ export function PropertyDetail() {
           <p className="mt-1 text-ink-soft tnum">
             {property.developer && <span>{property.developer} · </span>}
             {property.area && <span>{property.area} · </span>}
+            {property.unitType && <span>{property.unitType} · </span>}
             Handover {formatDate(property.handoverDate)}
           </p>
         </div>

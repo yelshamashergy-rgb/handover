@@ -2,6 +2,8 @@ export type Currency = 'AED' | 'USD' | 'GBP' | 'EUR' | 'SAR'
 
 export type Market = 'Dubai' | 'Abu Dhabi' | 'Sharjah' | 'Ras Al Khaimah' | 'Other'
 
+export type UnitType = 'Studio' | '1 Bed' | '2 Bed' | '3 Bed' | '4+ Bed' | 'Townhouse' | 'Villa'
+
 export type DocType = 'SPA' | 'Oqood' | 'NOC' | 'Escrow receipt' | 'Title deed' | 'Passport/ID' | 'Other'
 
 export interface PropertyDocument {
@@ -56,6 +58,7 @@ export interface Property {
   developer: string
   market: Market
   area?: string
+  unitType?: UnitType
   currency: Currency
   purchasePrice: number
   /** booking date — anchors the payment schedule */

@@ -1,9 +1,9 @@
 import { useMemo, useState } from 'react'
 import { addMonths } from 'date-fns'
-import type { Currency, Frequency, Market, Property } from '../lib/types'
+import type { Currency, Frequency, Market, Property, UnitType } from '../lib/types'
 import { allocatedPct, generateSchedule } from '../lib/payments'
 import { defaultResaleThreshold } from '../lib/costs'
-import { areasFor, benchmarkFor } from '../lib/benchmarks'
+import { areasFor, benchmarkFor, UNIT_TYPES } from '../lib/benchmarks'
 import { money, pct, todayISO } from '../lib/format'
 import { Button, Field, Segmented, cx, inputCls } from '../ui/primitives'
 import { Alert } from '../ui/icons'
@@ -48,6 +48,7 @@ interface FormState {
   developer: string
   market: Market
   area: string
+  unitType: string
   currency: Currency
   purchasePrice: string
   bookingDate: string
@@ -72,6 +73,7 @@ function initial(p?: Property): FormState {
     developer: p?.developer ?? '',
     market: p?.market ?? 'Dubai',
     area: p?.area ?? '',
+    unitType: p?.unitType ?? '',
     currency: p?.currency ?? 'AED',
     purchasePrice: p ? String(p.purchasePrice) : '',
     bookingDate: p?.bookingDate ?? today,
@@ -152,7 +154,12 @@ export function PropertyForm({
   }, [mode, planValid, f.purchasePrice, f.downPaymentPct, f.installmentPct, f.installmentCount, f.frequency, f.includeDldFee, f.bookingDate, f.handoverDate])
 
   const baseValid = f.name.trim() !== '' && price > 0 && f.handoverDate > f.bookingDate
-  const areaBenchmark = benchmarkFor(f.market, f.area)
+  const unit = f.unitType ? (f.unitType as UnitType) : undefined
+  const areaBenchmark = benchmarkFor(f.market, f.area, unit)
+  const suggestYield = (area: string, unitType: string) => {
+    const b = benchmarkFor(f.market, area, unitType ? (unitType as UnitType) : undefined)
+    return b ? String(b.typ) : null
+  }
 
   function submit() {
     if (!baseValid) return
@@ -161,6 +168,7 @@ export function PropertyForm({
       developer: f.developer.trim(),
       market: f.market,
       area: f.area.trim() || undefined,
+      unitType: f.unitType ? (f.unitType as UnitType) : undefined,
       currency: f.currency,
       purchasePrice: price,
       resaleThresholdPct: property?.resaleThresholdPct ?? defaultResaleThreshold(f.developer),
@@ -257,12 +265,8 @@ export function PropertyForm({
             placeholder="e.g. Dubai Marina"
             onChange={(e) => {
               const v = e.target.value
-              const b = benchmarkFor(f.market, v)
-              setF((s) => ({
-                ...s,
-                area: v,
-                ...(b ? { expectedRentalYieldPct: String(b.typ) } : {}),
-              }))
+              const y = suggestYield(v, f.unitType)
+              setF((s) => ({ ...s, area: v, ...(y ? { expectedRentalYieldPct: y } : {}) }))
             }}
           />
           <datalist id="hb-areas">
@@ -299,6 +303,24 @@ export function PropertyForm({
           </Field>
         </div>
         <div className="grid grid-cols-2 gap-4">
+          <Field label="Property type" hint="Adjusts the yield benchmark.">
+            <select
+              className={cx(inputCls, 'cursor-pointer')}
+              value={f.unitType}
+              onChange={(e) => {
+                const v = e.target.value
+                const y = suggestYield(f.area, v)
+                setF((s) => ({ ...s, unitType: v, ...(y ? { expectedRentalYieldPct: y } : {}) }))
+              }}
+            >
+              <option value="">Unspecified</option>
+              {UNIT_TYPES.map((t) => (
+                <option key={t} value={t}>
+                  {t}
+                </option>
+              ))}
+            </select>
+          </Field>
           <Field label="Size (sqft)" hint="Optional — enables net-yield.">
             <input
               className={inputCls}
@@ -308,16 +330,16 @@ export function PropertyForm({
               placeholder="850"
             />
           </Field>
-          <Field label="Service charge / sqft / yr" hint="Optional.">
-            <input
-              className={inputCls}
-              inputMode="numeric"
-              value={f.serviceChargePerSqft}
-              onChange={(e) => set('serviceChargePerSqft', e.target.value.replace(/[^0-9.]/g, ''))}
-              placeholder="18"
-            />
-          </Field>
         </div>
+        <Field label="Service charge / sqft / yr" hint="Optional — enables net yield.">
+          <input
+            className={inputCls}
+            inputMode="numeric"
+            value={f.serviceChargePerSqft}
+            onChange={(e) => set('serviceChargePerSqft', e.target.value.replace(/[^0-9.]/g, ''))}
+            placeholder="18"
+          />
+        </Field>
       </section>
 
       {/* Payment plan architect — new only */}

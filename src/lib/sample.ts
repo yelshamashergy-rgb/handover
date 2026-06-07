@@ -37,6 +37,7 @@ export function sampleProperty(): Property {
     developer: 'Emaar',
     market: 'Dubai',
     area: 'Dubai Marina',
+    unitType: '1 Bed',
     currency: 'AED',
     purchasePrice: 1_850_000,
     bookingDate: iso(booking),

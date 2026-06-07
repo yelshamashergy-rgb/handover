@@ -1,6 +1,6 @@
 import type { Property } from '../lib/types'
 import { projection } from '../lib/payments'
-import { benchmarkFor, MARKET_AVG_YIELD } from '../lib/benchmarks'
+import { benchmarkFor, averageYieldFor } from '../lib/benchmarks'
 import { money, pct } from '../lib/format'
 import { cx } from '../ui/primitives'
 import { Sparkle } from '../ui/icons'
@@ -79,8 +79,9 @@ function YieldBenchmark({
   property: Property
   onApply: (v: number) => void
 }) {
-  const b = benchmarkFor(property.market, property.area)
-  const avg = MARKET_AVG_YIELD[property.market]
+  const b = benchmarkFor(property.market, property.area, property.unitType)
+  const avg = averageYieldFor(property.market, property.unitType)
+  const typeLabel = property.unitType ? ` · ${property.unitType}` : ''
 
   if (b) {
     const atTyp = Math.abs(property.expectedRentalYieldPct - b.typ) < 0.05
@@ -92,7 +93,11 @@ function YieldBenchmark({
       >
         <Sparkle size={15} className="shrink-0 text-gold" />
         <span className="text-ink-soft">
-          <span className="font-medium text-ink">{property.area}</span>: typical{' '}
+          <span className="font-medium text-ink">
+            {property.area}
+            {typeLabel}
+          </span>
+          : typical{' '}
           <span className="tnum">
             {b.min}–{b.max}%
           </span>{' '}
