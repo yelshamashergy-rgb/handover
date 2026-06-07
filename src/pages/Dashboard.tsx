@@ -4,8 +4,9 @@ import { useAddProperty } from '../components/Layout'
 import { portfolioStats, propertyStats } from '../lib/payments'
 import { money, moneyCompact, pct, formatDate, relativeDays } from '../lib/format'
 import { Button, Card, ProgressBar, StatusBadge, cx, type Status } from '../ui/primitives'
-import { ArrowUpRight, Building, Plus, Sparkle, TrendingUp, Wallet } from '../ui/icons'
+import { ArrowUpRight, Building, Plus, Sparkle } from '../ui/icons'
 import { Onboarding } from '../components/Onboarding'
+import { EquityRing } from '../components/EquityRing'
 import type { Property } from '../lib/types'
 
 export function Dashboard() {
@@ -55,97 +56,70 @@ function PortfolioSummary({ properties }: { properties: Property[] }) {
   const s = portfolioStats(subset)
 
   return (
-    <Card className="animate-in overflow-hidden p-0">
-      <div className="grid gap-px bg-line sm:grid-cols-4">
-        <Metric
-          icon={<Wallet size={16} />}
-          label="Committed"
-          value={money(s.totalCommitted, cur)}
-        />
-        <Metric
-          icon={<Building size={16} />}
-          label="Equity paid"
-          value={money(s.totalPaid, cur)}
-          sub={`${pct(s.equityPct)} of value`}
-          tone="primary"
-        />
-        <Metric label="Remaining" value={money(s.totalRemaining, cur)} />
-        <Metric
-          icon={<TrendingUp size={16} />}
-          label="Projected gain"
-          value={money(s.projectedGain, cur)}
-          tone="gold"
-        />
+    <Card className="animate-in flex flex-col gap-5 p-5">
+      {/* hero */}
+      <div className="flex items-center gap-5">
+        <EquityRing pct={s.equityPct} label="equity" />
+        <div className="min-w-0">
+          <div className="text-xs uppercase tracking-wider text-ink-faint">Equity paid</div>
+          <div className="whitespace-nowrap font-serif text-2xl leading-tight text-ink tnum">
+            {money(s.totalPaid, cur)}
+          </div>
+          <div className="mt-1 text-sm text-ink-soft tnum">
+            of {moneyCompact(s.totalCommitted, cur)} committed
+          </div>
+        </div>
       </div>
 
-      <div className="flex flex-col gap-4 border-t border-line p-5 sm:flex-row sm:items-center sm:justify-between">
-        <div className="flex-1">
-          <div className="mb-1.5 flex items-center justify-between text-sm">
-            <span className="text-ink-soft">Portfolio equity</span>
-            <span className="font-medium text-ink tnum">{pct(s.equityPct)}</span>
-          </div>
-          <ProgressBar value={s.equityPct} />
-        </div>
-        {s.next && (
-          <Link
-            to={`/property/${s.next.property.id}`}
-            className="group flex items-center justify-between gap-4 rounded-xl border border-line bg-surface-2 px-4 py-3 transition-colors hover:border-line-strong sm:w-80"
-          >
-            <div className="min-w-0">
-              <div className="text-xs text-ink-faint">Next payment {relativeDays(s.next.payment.dueDate)}</div>
-              <div className="truncate text-sm font-medium text-ink">{s.next.property.name}</div>
-              <div className="text-xs text-ink-soft tnum">{formatDate(s.next.payment.dueDate)}</div>
-            </div>
-            <div className="text-right">
-              <div className="font-serif text-lg text-ink tnum">
-                {moneyCompact(s.next.payment.amount, cur)}
-              </div>
-              <ArrowUpRight size={16} className="ml-auto text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
-            </div>
-          </Link>
-        )}
+      {/* supporting */}
+      <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-line bg-line">
+        <Mini label="Remaining" value={moneyCompact(s.totalRemaining, cur)} />
+        <Mini label="Proj. value" value={moneyCompact(s.projectedValue, cur)} />
+        <Mini label="Proj. gain" value={moneyCompact(s.projectedGain, cur)} tone="gold" />
       </div>
+
+      {/* next payment */}
+      {s.next && (
+        <Link
+          to={`/property/${s.next.property.id}`}
+          className="group flex items-center justify-between gap-4 rounded-xl border border-line bg-surface-2 px-4 py-3 transition-colors hover:border-line-strong active:scale-[0.99]"
+        >
+          <div className="min-w-0">
+            <div className="text-xs text-ink-faint">Next payment {relativeDays(s.next.payment.dueDate)}</div>
+            <div className="truncate text-sm font-medium text-ink">{s.next.property.name}</div>
+            <div className="text-xs text-ink-soft tnum">{formatDate(s.next.payment.dueDate)}</div>
+          </div>
+          <div className="flex shrink-0 items-center gap-2 text-right">
+            <span className="whitespace-nowrap font-serif text-lg text-ink tnum">
+              {moneyCompact(s.next.payment.amount, cur)}
+            </span>
+            <ArrowUpRight size={16} className="text-ink-faint transition-transform group-hover:translate-x-0.5 group-hover:-translate-y-0.5" />
+          </div>
+        </Link>
+      )}
 
       {othersCount > 0 && (
-        <p className="border-t border-line px-5 py-3 text-xs text-ink-faint">
+        <p className="text-xs text-ink-faint">
           Totals shown in {cur}. {othersCount} propert{othersCount > 1 ? 'ies' : 'y'} in other
-          currencies not included in this roll-up.
+          currencies not included.
         </p>
       )}
     </Card>
   )
 }
 
-function Metric({
-  icon,
-  label,
-  value,
-  sub,
-  tone = 'ink',
-}: {
-  icon?: React.ReactNode
-  label: string
-  value: string
-  sub?: string
-  tone?: 'ink' | 'primary' | 'gold'
-}) {
+function Mini({ label, value, tone = 'ink' }: { label: string; value: string; tone?: 'ink' | 'gold' }) {
   return (
-    <div className="bg-surface px-5 py-4">
-      <div className="flex items-center gap-1.5 text-xs text-ink-soft">
-        {icon}
-        {label}
-      </div>
+    <div className="bg-surface px-3 py-3 text-center">
+      <div className="text-[11px] text-ink-soft">{label}</div>
       <div
         className={cx(
-          'mt-1.5 whitespace-nowrap font-serif text-lg tnum sm:text-xl',
-          tone === 'primary' && 'text-primary',
-          tone === 'gold' && 'text-gold',
-          tone === 'ink' && 'text-ink',
+          'mt-0.5 whitespace-nowrap font-serif text-base tnum',
+          tone === 'gold' ? 'text-gold' : 'text-ink',
         )}
       >
         {value}
       </div>
-      {sub && <div className="mt-0.5 text-xs text-ink-faint tnum">{sub}</div>}
     </div>
   )
 }

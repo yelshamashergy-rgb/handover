@@ -32,7 +32,7 @@ export function Tabs({
             aria-selected={on}
             onClick={() => onChange(t.id)}
             className={cx(
-              'shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors cursor-pointer',
+              'shrink-0 whitespace-nowrap rounded-full px-4 py-2.5 text-sm font-medium transition-[color,background,transform] active:scale-95 cursor-pointer',
               on
                 ? 'bg-primary text-primary-ink shadow-[var(--shadow-sm)]'
                 : 'bg-surface-2 text-ink-soft hover:text-ink',
