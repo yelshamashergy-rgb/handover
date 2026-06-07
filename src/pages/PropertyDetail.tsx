@@ -21,6 +21,15 @@ import { MortgageCalculator } from '../components/MortgageCalculator'
 import { DocumentVault } from '../components/DocumentVault'
 import { SnaggingChecklist } from '../components/SnaggingChecklist'
 import { Timeline } from '../components/Timeline'
+import { Tabs, type TabDef } from '../components/Tabs'
+
+const TABS: TabDef[] = [
+  { id: 'overview', label: 'Overview' },
+  { id: 'payments', label: 'Payments' },
+  { id: 'returns', label: 'Returns' },
+  { id: 'documents', label: 'Documents' },
+  { id: 'handover', label: 'Handover' },
+]
 import { Modal } from '../components/Modal'
 import { PropertyForm } from '../components/PropertyForm'
 import { PaymentEditor } from '../components/PaymentEditor'
@@ -45,6 +54,7 @@ export function PropertyDetail() {
   const [confirmDelete, setConfirmDelete] = useState(false)
   const [paymentModal, setPaymentModal] = useState<{ mode: 'add' | 'edit'; payment?: Payment } | null>(null)
   const [importing, setImporting] = useState(false)
+  const [tab, setTab] = useState('overview')
 
   const property = getProperty(id)
 
@@ -121,133 +131,144 @@ export function PropertyDetail() {
         />
       </div>
 
-      {/* cost to acquire */}
-      {marketHasFees(property.market) &&
-        (() => {
-          const costs = purchaseCosts(property.purchasePrice, property.market)
-          const cash = property.purchasePrice + costs.total
-          return (
-            <Card className="animate-in p-5 sm:p-6">
-              <div className="mb-1 flex items-center gap-2">
-                <Wallet size={18} className="text-ink-soft" />
-                <h2 className="font-serif text-xl text-ink">Cost to acquire</h2>
-              </div>
-              <p className="mb-4 text-sm text-ink-soft">
-                Government fees &amp; charges on top of the price, in {property.market}.
-              </p>
-              <CostList
-                breakdown={costs}
-                currency={property.currency}
-                totalLabel="Acquisition fees"
-                footnote={
-                  marketIsEstimate(property.market)
-                    ? `Estimated standard ${property.market} rates — fees vary by buyer type and periodic promotions. Verify with the authority.`
-                    : 'Standard Dubai DLD rates — verify current fees before transacting.'
-                }
-              />
-              <div className="mt-3 flex items-center justify-between rounded-xl bg-primary-tint px-4 py-3">
-                <span className="text-sm font-medium text-primary">Total cash to acquire</span>
-                <span className="font-serif text-xl text-primary tnum">{money(cash, property.currency)}</span>
-              </div>
-            </Card>
-          )
-        })()}
+      <Tabs tabs={TABS} active={tab} onChange={setTab} />
 
-      {/* equity chart */}
-      <Card className="animate-in p-5 sm:p-6">
-        <div className="mb-1 flex items-center justify-between">
-          <h2 className="font-serif text-xl text-ink">Equity build-up</h2>
-          <span className="text-sm text-ink-soft tnum">
-            {pct(s.progressPct)} of plan settled
-          </span>
-        </div>
-        <p className="mb-4 text-sm text-ink-soft">
-          {s.paidCount} of {s.totalCount} payments made.
-        </p>
-        <ProgressBar value={s.progressPct} className="mb-5" />
-        <EquityChart property={property} />
-      </Card>
+      {/* OVERVIEW */}
+      {tab === 'overview' && (
+        <>
+          {marketHasFees(property.market) &&
+            (() => {
+              const costs = purchaseCosts(property.purchasePrice, property.market)
+              const cash = property.purchasePrice + costs.total
+              return (
+                <Card className="animate-in p-5 sm:p-6">
+                  <div className="mb-1 flex items-center gap-2">
+                    <Wallet size={18} className="text-ink-soft" />
+                    <h2 className="font-serif text-xl text-ink">Cost to acquire</h2>
+                  </div>
+                  <p className="mb-4 text-sm text-ink-soft">
+                    Government fees &amp; charges on top of the price, in {property.market}.
+                  </p>
+                  <CostList
+                    breakdown={costs}
+                    currency={property.currency}
+                    totalLabel="Acquisition fees"
+                    footnote={
+                      marketIsEstimate(property.market)
+                        ? `Estimated standard ${property.market} rates — fees vary by buyer type and periodic promotions. Verify with the authority.`
+                        : 'Standard Dubai DLD rates — verify current fees before transacting.'
+                    }
+                  />
+                  <div className="mt-3 flex items-center justify-between rounded-xl bg-primary-tint px-4 py-3">
+                    <span className="text-sm font-medium text-primary">Total cash to acquire</span>
+                    <span className="font-serif text-xl text-primary tnum">{money(cash, property.currency)}</span>
+                  </div>
+                </Card>
+              )
+            })()}
 
-      {/* projector */}
-      <Card className="animate-in p-5 sm:p-6">
-        <h2 className="mb-1 font-serif text-xl text-ink">Return projector</h2>
-        <p className="mb-5 text-sm text-ink-soft">
-          Drag to model appreciation and yield. Saved automatically.
-        </p>
-        <RoiProjector property={property} onChange={(patch) => updateProperty(property.id, patch)} />
-      </Card>
+          <Card className="animate-in p-5 sm:p-6">
+            <div className="mb-1 flex items-center justify-between">
+              <h2 className="font-serif text-xl text-ink">Equity build-up</h2>
+              <span className="text-sm text-ink-soft tnum">{pct(s.progressPct)} of plan settled</span>
+            </div>
+            <p className="mb-4 text-sm text-ink-soft">
+              {s.paidCount} of {s.totalCount} payments made.
+            </p>
+            <ProgressBar value={s.progressPct} className="mb-5" />
+            <EquityChart property={property} />
+          </Card>
+        </>
+      )}
 
-      {/* resale / flip */}
-      <Card className="animate-in p-5 sm:p-6">
-        <h2 className="mb-1 font-serif text-xl text-ink">Resale &amp; flip</h2>
-        <p className="mb-5 text-sm text-ink-soft">
-          Assignment economics before handover — eligibility, premium, and net return.
-        </p>
-        <ResaleCalculator
-          property={property}
-          onThresholdChange={(p) => updateProperty(property.id, { resaleThresholdPct: p })}
-        />
-      </Card>
-
-      {/* mortgage at handover */}
-      <Card className="animate-in p-5 sm:p-6">
-        <h2 className="mb-1 font-serif text-xl text-ink">Mortgage at handover</h2>
-        <p className="mb-5 text-sm text-ink-soft">
-          Model financing the balance when you take the keys.
-        </p>
-        <MortgageCalculator property={property} />
-      </Card>
-
-      {/* timeline */}
-      <Card className="animate-in p-5 sm:p-6">
-        <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
-          <h2 className="font-serif text-xl text-ink">Payment schedule</h2>
-          <div className="flex gap-2 print:hidden">
-            <Button variant="outline" size="sm" onClick={() => setImporting(true)}>
-              <Sparkle size={16} /> Import PDF
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => exportPaymentsCSV(property)}>
-              <Download size={16} /> CSV
-            </Button>
-            <Button variant="outline" size="sm" onClick={() => window.print()}>
-              <Printer size={16} /> Print
-            </Button>
+      {/* PAYMENTS */}
+      {tab === 'payments' && (
+        <Card className="animate-in p-5 sm:p-6">
+          <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
+            <h2 className="font-serif text-xl text-ink">Payment schedule</h2>
+            <div className="flex gap-2 print:hidden">
+              <Button variant="outline" size="sm" onClick={() => setImporting(true)}>
+                <Sparkle size={16} /> Import PDF
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => exportPaymentsCSV(property)}>
+                <Download size={16} /> CSV
+              </Button>
+              <Button variant="outline" size="sm" onClick={() => window.print()}>
+                <Printer size={16} /> Print
+              </Button>
+            </div>
           </div>
-        </div>
-        <Timeline
-          property={property}
-          onToggle={(pid) => togglePaid(property.id, pid)}
-          onEditPayment={(p) => setPaymentModal({ mode: 'edit', payment: p })}
-          onAddPayment={() => setPaymentModal({ mode: 'add' })}
-        />
-      </Card>
+          <Timeline
+            property={property}
+            onToggle={(pid) => togglePaid(property.id, pid)}
+            onEditPayment={(p) => setPaymentModal({ mode: 'edit', payment: p })}
+            onAddPayment={() => setPaymentModal({ mode: 'add' })}
+          />
+        </Card>
+      )}
 
-      {/* documents */}
-      <Card className="animate-in p-5 sm:p-6">
-        <h2 className="mb-1 font-serif text-xl text-ink">Document vault</h2>
-        <p className="mb-5 text-sm text-ink-soft">
-          SPA, Oqood, NOC &amp; receipts — stored privately on your device.
-        </p>
-        <DocumentVault
-          property={property}
-          onAdd={(d) => addDocument(property.id, d)}
-          onUpdate={(id, patch) => updateDocument(property.id, id, patch)}
-          onDelete={(id) => deleteDocument(property.id, id)}
-          onReconcile={(patch) => setReconciliation(property.id, patch)}
-        />
-      </Card>
+      {/* RETURNS */}
+      {tab === 'returns' && (
+        <>
+          <Card className="animate-in p-5 sm:p-6">
+            <h2 className="mb-1 font-serif text-xl text-ink">Return projector</h2>
+            <p className="mb-5 text-sm text-ink-soft">
+              Drag to model appreciation and yield. Saved automatically.
+            </p>
+            <RoiProjector property={property} onChange={(patch) => updateProperty(property.id, patch)} />
+          </Card>
 
-      {/* snagging */}
-      <Card className="animate-in p-5 sm:p-6">
-        <h2 className="mb-1 font-serif text-xl text-ink">Handover snagging</h2>
-        <p className="mb-5 text-sm text-ink-soft">
-          Inspect the unit at handover and log every defect to report to the developer.
-        </p>
-        <SnaggingChecklist
-          property={property}
-          onChange={(items) => updateProperty(property.id, { snagging: items })}
-        />
-      </Card>
+          <Card className="animate-in p-5 sm:p-6">
+            <h2 className="mb-1 font-serif text-xl text-ink">Resale &amp; flip</h2>
+            <p className="mb-5 text-sm text-ink-soft">
+              Assignment economics before handover — eligibility, premium, and net return.
+            </p>
+            <ResaleCalculator
+              property={property}
+              onThresholdChange={(p) => updateProperty(property.id, { resaleThresholdPct: p })}
+            />
+          </Card>
+
+          <Card className="animate-in p-5 sm:p-6">
+            <h2 className="mb-1 font-serif text-xl text-ink">Mortgage at handover</h2>
+            <p className="mb-5 text-sm text-ink-soft">
+              Model financing the balance when you take the keys.
+            </p>
+            <MortgageCalculator property={property} />
+          </Card>
+        </>
+      )}
+
+      {/* DOCUMENTS */}
+      {tab === 'documents' && (
+        <Card className="animate-in p-5 sm:p-6">
+          <h2 className="mb-1 font-serif text-xl text-ink">Document vault</h2>
+          <p className="mb-5 text-sm text-ink-soft">
+            SPA, Oqood, NOC &amp; receipts — stored privately on your device.
+          </p>
+          <DocumentVault
+            property={property}
+            onAdd={(d) => addDocument(property.id, d)}
+            onUpdate={(id, patch) => updateDocument(property.id, id, patch)}
+            onDelete={(id) => deleteDocument(property.id, id)}
+            onReconcile={(patch) => setReconciliation(property.id, patch)}
+          />
+        </Card>
+      )}
+
+      {/* HANDOVER */}
+      {tab === 'handover' && (
+        <Card className="animate-in p-5 sm:p-6">
+          <h2 className="mb-1 font-serif text-xl text-ink">Handover snagging</h2>
+          <p className="mb-5 text-sm text-ink-soft">
+            Inspect the unit at handover and log every defect to report to the developer.
+          </p>
+          <SnaggingChecklist
+            property={property}
+            onChange={(items) => updateProperty(property.id, { snagging: items })}
+          />
+        </Card>
+      )}
 
       <Modal open={editing} onClose={() => setEditing(false)} title="Edit property" size="lg">
         <PropertyForm
