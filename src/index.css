@@ -1,0 +1,274 @@
+@import 'tailwindcss';
+
+/* ============================================================
+   Handover — design tokens
+   Quiet-luxury / private-banking. Warm ivory, ink, deep emerald,
+   muted brass. Light default + dark via [data-theme="dark"].
+   ============================================================ */
+
+:root {
+  /* surfaces */
+  --c-bg: #f6f2ea;
+  --c-surface: #fffdf9;
+  --c-surface-2: #efe9dd;
+  --c-elevated: #ffffff;
+
+  /* ink */
+  --c-ink: #1b1813;
+  --c-ink-soft: #6a6056;
+  --c-ink-faint: #9a9082;
+
+  /* lines */
+  --c-border: #e4dccd;
+  --c-border-strong: #d4c9b4;
+
+  /* brand */
+  --c-primary: #0e5c4a;
+  --c-primary-strong: #0a4639;
+  --c-primary-ink: #ffffff;
+  --c-primary-tint: #e4efe9;
+
+  --c-gold: #a37c3c;
+  --c-gold-tint: #f1e7d4;
+
+  /* status */
+  --c-paid: #1f7a5a;
+  --c-paid-tint: #e2f0e9;
+  --c-due: #b07d1c;
+  --c-due-tint: #f6ecd5;
+  --c-over: #b23129;
+  --c-over-tint: #f6e2df;
+
+  /* data */
+  --c-pos: #1f7a5a;
+  --c-neg: #b23129;
+
+  /* effects */
+  --shadow-sm: 0 1px 2px rgba(35, 28, 18, 0.05), 0 1px 1px rgba(35, 28, 18, 0.04);
+  --shadow-md: 0 4px 14px -4px rgba(35, 28, 18, 0.12), 0 2px 6px -2px rgba(35, 28, 18, 0.07);
+  --shadow-lg: 0 24px 48px -16px rgba(35, 28, 18, 0.22), 0 8px 20px -8px rgba(35, 28, 18, 0.12);
+
+  color-scheme: light;
+}
+
+[data-theme='dark'] {
+  --c-bg: #121110;
+  --c-surface: #1b1916;
+  --c-surface-2: #232019;
+  --c-elevated: #211e1a;
+
+  --c-ink: #f1eae0;
+  --c-ink-soft: #ab9f8e;
+  --c-ink-faint: #7c7264;
+
+  --c-border: #312c24;
+  --c-border-strong: #423b30;
+
+  --c-primary: #34a98a;
+  --c-primary-strong: #2c8e74;
+  --c-primary-ink: #07140f;
+  --c-primary-tint: #16302a;
+
+  --c-gold: #d2ad6a;
+  --c-gold-tint: #2c2418;
+
+  --c-paid: #43b18d;
+  --c-paid-tint: #16302a;
+  --c-due: #e0ad48;
+  --c-due-tint: #322714;
+  --c-over: #e56a60;
+  --c-over-tint: #341d1b;
+
+  --c-pos: #43b18d;
+  --c-neg: #e56a60;
+
+  --shadow-sm: 0 1px 2px rgba(0, 0, 0, 0.4);
+  --shadow-md: 0 6px 18px -6px rgba(0, 0, 0, 0.55), 0 2px 6px -2px rgba(0, 0, 0, 0.4);
+  --shadow-lg: 0 28px 60px -18px rgba(0, 0, 0, 0.7), 0 10px 24px -10px rgba(0, 0, 0, 0.5);
+
+  color-scheme: dark;
+}
+
+/* Map tokens into Tailwind's theme so utilities like bg-surface, text-ink work */
+@theme inline {
+  --color-bg: var(--c-bg);
+  --color-surface: var(--c-surface);
+  --color-surface-2: var(--c-surface-2);
+  --color-elevated: var(--c-elevated);
+
+  --color-ink: var(--c-ink);
+  --color-ink-soft: var(--c-ink-soft);
+  --color-ink-faint: var(--c-ink-faint);
+
+  --color-line: var(--c-border);
+  --color-line-strong: var(--c-border-strong);
+
+  --color-primary: var(--c-primary);
+  --color-primary-strong: var(--c-primary-strong);
+  --color-primary-ink: var(--c-primary-ink);
+  --color-primary-tint: var(--c-primary-tint);
+
+  --color-gold: var(--c-gold);
+  --color-gold-tint: var(--c-gold-tint);
+
+  --color-paid: var(--c-paid);
+  --color-paid-tint: var(--c-paid-tint);
+  --color-due: var(--c-due);
+  --color-due-tint: var(--c-due-tint);
+  --color-over: var(--c-over);
+  --color-over-tint: var(--c-over-tint);
+
+  --color-pos: var(--c-pos);
+  --color-neg: var(--c-neg);
+
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+
+  --radius-card: 16px;
+}
+
+* {
+  border-color: var(--c-border);
+}
+
+html {
+  -webkit-text-size-adjust: 100%;
+}
+
+body {
+  margin: 0;
+  min-height: 100dvh;
+  background: var(--c-bg);
+  color: var(--c-ink);
+  font-family: var(--font-sans);
+  font-size: 16px;
+  line-height: 1.5;
+  -webkit-font-smoothing: antialiased;
+  -moz-osx-font-smoothing: grayscale;
+  text-rendering: optimizeLegibility;
+  font-feature-settings: 'cv05' 1, 'ss01' 1;
+}
+
+/* Tabular figures for all money + data */
+.tnum {
+  font-variant-numeric: tabular-nums;
+  font-feature-settings: 'tnum' 1;
+}
+
+.font-serif {
+  font-family: var(--font-serif);
+}
+
+/* Subtle paper grain on the page background for warmth */
+.grain::before {
+  content: '';
+  position: fixed;
+  inset: 0;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.025;
+  background-image: url("data:image/svg+xml,%3Csvg xmlns='http://www.w3.org/2000/svg' width='120' height='120'%3E%3Cfilter id='n'%3E%3CfeTurbulence type='fractalNoise' baseFrequency='0.85' numOctaves='3'/%3E%3C/filter%3E%3Crect width='100%25' height='100%25' filter='url(%23n)'/%3E%3C/svg%3E");
+}
+
+::selection {
+  background: var(--c-primary);
+  color: var(--c-primary-ink);
+}
+
+/* Focus ring — visible, on-brand */
+:where(button, a, input, select, textarea, [tabindex]):focus-visible {
+  outline: 2px solid var(--c-primary);
+  outline-offset: 2px;
+  border-radius: 6px;
+}
+
+/* Range slider — themed */
+input[type='range'] {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 100%;
+  height: 4px;
+  border-radius: 999px;
+  background: var(--c-surface-2);
+  cursor: pointer;
+}
+input[type='range']::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  height: 22px;
+  width: 22px;
+  border-radius: 999px;
+  background: var(--c-surface);
+  border: 2px solid var(--c-primary);
+  box-shadow: var(--shadow-sm);
+  transition: transform 0.12s ease;
+}
+input[type='range']::-webkit-slider-thumb:active {
+  transform: scale(1.12);
+}
+input[type='range']::-moz-range-thumb {
+  height: 20px;
+  width: 20px;
+  border-radius: 999px;
+  background: var(--c-surface);
+  border: 2px solid var(--c-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    transition-duration: 0.01ms !important;
+  }
+}
+
+@keyframes fade-in {
+  from {
+    opacity: 0;
+    transform: translateY(6px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+.animate-in {
+  animation: fade-in 0.35s cubic-bezier(0.22, 1, 0.36, 1) both;
+}
+
+@keyframes draw {
+  to {
+    stroke-dashoffset: 0;
+  }
+}
+
+/* Print — clean statement, forced legible light palette regardless of theme */
+@media print {
+  [data-theme='dark'] {
+    --c-bg: #fff;
+    --c-surface: #fff;
+    --c-surface-2: #f4f1ea;
+    --c-ink: #14110e;
+    --c-ink-soft: #4a443c;
+    --c-ink-faint: #6a6056;
+    --c-border: #d8d0c2;
+    --c-border-strong: #c5bba7;
+    --c-primary: #0e5c4a;
+    --c-gold: #8f6d34;
+    --c-paid: #1f7a5a;
+  }
+  body {
+    background: #fff;
+  }
+  .grain::before {
+    display: none;
+  }
+  main {
+    padding: 0 !important;
+    max-width: 100% !important;
+  }
+  .animate-in {
+    animation: none !important;
+  }
+}
