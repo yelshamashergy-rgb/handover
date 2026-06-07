@@ -7,6 +7,7 @@ import { Button, Card, ProgressBar, StatusBadge, cx, type Status } from '../ui/p
 import { ArrowUpRight, Building, Plus, Sparkle } from '../ui/icons'
 import { Onboarding } from '../components/Onboarding'
 import { EquityRing } from '../components/EquityRing'
+import { CountUp } from '../ui/CountUp'
 import type { Property } from '../lib/types'
 
 export function Dashboard() {
@@ -63,7 +64,7 @@ function PortfolioSummary({ properties }: { properties: Property[] }) {
         <div className="min-w-0">
           <div className="text-xs uppercase tracking-wider text-ink-faint">Equity paid</div>
           <div className="whitespace-nowrap font-serif text-2xl leading-tight text-ink tnum">
-            {money(s.totalPaid, cur)}
+            <CountUp value={s.totalPaid} format={(n) => money(n, cur)} />
           </div>
           <div className="mt-1 text-sm text-ink-soft tnum">
             of {moneyCompact(s.totalCommitted, cur)} committed
@@ -73,9 +74,13 @@ function PortfolioSummary({ properties }: { properties: Property[] }) {
 
       {/* supporting */}
       <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-line bg-line">
-        <Mini label="Remaining" value={moneyCompact(s.totalRemaining, cur)} />
-        <Mini label="Proj. value" value={moneyCompact(s.projectedValue, cur)} />
-        <Mini label="Proj. gain" value={moneyCompact(s.projectedGain, cur)} tone="gold" />
+        <Mini label="Remaining" value={<CountUp value={s.totalRemaining} format={(n) => moneyCompact(n, cur)} />} />
+        <Mini label="Proj. value" value={<CountUp value={s.projectedValue} format={(n) => moneyCompact(n, cur)} />} />
+        <Mini
+          label="Proj. gain"
+          value={<CountUp value={s.projectedGain} format={(n) => moneyCompact(n, cur)} />}
+          tone="gold"
+        />
       </div>
 
       {/* next payment */}
@@ -108,7 +113,15 @@ function PortfolioSummary({ properties }: { properties: Property[] }) {
   )
 }
 
-function Mini({ label, value, tone = 'ink' }: { label: string; value: string; tone?: 'ink' | 'gold' }) {
+function Mini({
+  label,
+  value,
+  tone = 'ink',
+}: {
+  label: string
+  value: React.ReactNode
+  tone?: 'ink' | 'gold'
+}) {
   return (
     <div className="bg-surface px-3 py-3 text-center">
       <div className="text-[11px] text-ink-soft">{label}</div>

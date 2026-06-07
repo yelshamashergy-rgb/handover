@@ -1,4 +1,6 @@
-/** Animated circular progress dial — the Home hero metric. */
+import { useCountUp } from '../ui/CountUp'
+
+/** Animated circular progress dial — the Home hero metric. Draws + counts from 0. */
 export function EquityRing({
   pct,
   size = 108,
@@ -10,7 +12,7 @@ export function EquityRing({
   stroke?: number
   label?: string
 }) {
-  const v = Math.min(100, Math.max(0, pct))
+  const v = useCountUp(Math.min(100, Math.max(0, pct)), 900)
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   const offset = c * (1 - v / 100)
@@ -29,7 +31,6 @@ export function EquityRing({
         strokeDasharray={c}
         strokeDashoffset={offset}
         transform={`rotate(-90 ${size / 2} ${size / 2})`}
-        style={{ transition: 'stroke-dashoffset 0.9s cubic-bezier(0.22,1,0.36,1)' }}
       />
       <text
         x="50%"

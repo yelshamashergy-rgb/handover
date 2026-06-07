@@ -1,5 +1,5 @@
 import { createContext, useCallback, useContext, useState, type ReactNode } from 'react'
-import { useNavigate } from 'react-router-dom'
+import { useLocation, useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
 import { BottomNav } from './BottomNav'
 import { Modal } from './Modal'
@@ -13,6 +13,7 @@ export const useAddProperty = () => useContext(AddCtx)
 export function Layout({ children }: { children: ReactNode }) {
   const { canAddProperty, addProperty } = useStore()
   const navigate = useNavigate()
+  const { pathname } = useLocation()
   const [addOpen, setAddOpen] = useState(false)
   const [upgradeOpen, setUpgradeOpen] = useState(false)
 
@@ -24,7 +25,11 @@ export function Layout({ children }: { children: ReactNode }) {
   return (
     <AddCtx.Provider value={requestAdd}>
       <div className="grain relative mx-auto min-h-dvh max-w-[480px] border-x border-line">
-        <main className="relative z-10 px-4 pb-32 pt-5">{children}</main>
+        <main className="relative z-10 px-4 pb-32 pt-5">
+          <div key={pathname} className="animate-page">
+            {children}
+          </div>
+        </main>
         <BottomNav onAdd={requestAdd} />
       </div>
 
