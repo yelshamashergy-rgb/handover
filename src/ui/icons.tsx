@@ -137,6 +137,16 @@ export const Printer = (p: IconProps) => (
     <path d="M6 9V3h12v6M6 18H4a2 2 0 0 1-2-2v-4a2 2 0 0 1 2-2h16a2 2 0 0 1 2 2v4a2 2 0 0 1-2 2h-2M6 14h12v7H6z" />
   </Base>
 )
+export const Home = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M3 10.5 12 3l9 7.5M5 9.5V20a1 1 0 0 0 1 1h12a1 1 0 0 0 1-1V9.5M9 21v-6h6v6" />
+  </Base>
+)
+export const Bars = (p: IconProps) => (
+  <Base {...p}>
+    <path d="M6 20V9M12 20V4M18 20v-7M3 20h18" />
+  </Base>
+)
 export const Settings = (p: IconProps) => (
   <Base {...p}>
     <circle cx="12" cy="12" r="3" />

@@ -1,73 +1,37 @@
-import { useState } from 'react'
 import { Link, useNavigate } from 'react-router-dom'
 import { useStore } from '../store'
+import { useAddProperty } from '../components/Layout'
 import { portfolioStats, propertyStats } from '../lib/payments'
-import { upcomingDeadlines, type Deadline } from '../lib/deadlines'
 import { money, moneyCompact, pct, formatDate, relativeDays } from '../lib/format'
 import { Button, Card, ProgressBar, StatusBadge, cx, type Status } from '../ui/primitives'
-import { ArrowUpRight, Building, Calendar, Plus, Receipt, Sparkle, TrendingUp, Wallet, Lock } from '../ui/icons'
-import { Modal } from '../components/Modal'
-import { PropertyForm } from '../components/PropertyForm'
-import { UpgradeModal } from '../components/UpgradeModal'
+import { ArrowUpRight, Building, Plus, Sparkle, TrendingUp, Wallet } from '../ui/icons'
 import { Onboarding } from '../components/Onboarding'
 import type { Property } from '../lib/types'
 
 export function Dashboard() {
-  const { properties, canAddProperty, addProperty, loadSample, onboarded } = useStore()
-  const [showForm, setShowForm] = useState(false)
-  const [showUpgrade, setShowUpgrade] = useState(false)
+  const { properties, loadSample, onboarded } = useStore()
+  const requestAdd = useAddProperty()
   const navigate = useNavigate()
 
-  const onAdd = () => (canAddProperty ? setShowForm(true) : setShowUpgrade(true))
-
   return (
-    <div className="flex flex-col gap-8">
+    <div className="flex flex-col gap-7">
       {!onboarded && properties.length === 0 && (
-        <Onboarding
-          onAddProperty={() => setShowForm(true)}
-          onSample={() => navigate(`/property/${loadSample()}`)}
-        />
+        <Onboarding onAddProperty={requestAdd} onSample={() => navigate(`/property/${loadSample()}`)} />
       )}
 
-      <div className="flex items-end justify-between gap-4">
-        <div>
-          <h1 className="font-serif text-3xl text-ink sm:text-4xl">Portfolio</h1>
-          <p className="mt-1 text-ink-soft">
-            {properties.length === 0
-              ? 'Track every off-plan payment in one private place.'
-              : `${properties.length} ${properties.length === 1 ? 'property' : 'properties'} in your pipeline.`}
-          </p>
-        </div>
-        <Button onClick={onAdd} className="shrink-0">
-          {canAddProperty ? <Plus size={18} /> : <Lock size={16} />}
-          Add property
-        </Button>
-      </div>
+      <header className="pt-1">
+        <p className="text-sm text-ink-faint">Your portfolio</p>
+        <h1 className="font-serif text-3xl text-ink">Handover</h1>
+      </header>
 
       {properties.length === 0 ? (
-        <EmptyState
-          onAdd={() => setShowForm(true)}
-          onSample={() => navigate(`/property/${loadSample()}`)}
-        />
+        <EmptyState onAdd={requestAdd} onSample={() => navigate(`/property/${loadSample()}`)} />
       ) : (
         <>
           <PortfolioSummary properties={properties} />
-          <UpcomingDeadlines properties={properties} />
           <section className="flex flex-col gap-3">
-            <div className="flex items-center justify-between">
-              <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-faint">
-                Properties
-              </h2>
-              {properties.length >= 2 && (
-                <Link
-                  to="/compare"
-                  className="inline-flex items-center gap-1.5 text-sm font-medium text-primary hover:underline"
-                >
-                  <TrendingUp size={16} /> Compare all
-                </Link>
-              )}
-            </div>
-            <div className="grid gap-4 sm:grid-cols-2">
+            <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-faint">Properties</h2>
+            <div className="flex flex-col gap-4">
               {properties.map((p, i) => (
                 <PropertyCard key={p.id} property={p} index={i} />
               ))}
@@ -75,19 +39,6 @@ export function Dashboard() {
           </section>
         </>
       )}
-
-      <Modal open={showForm} onClose={() => setShowForm(false)} title="New property" size="lg">
-        <PropertyForm
-          mode="new"
-          onCancel={() => setShowForm(false)}
-          onSubmitNew={(data) => {
-            const id = addProperty(data)
-            setShowForm(false)
-            navigate(`/property/${id}`)
-          }}
-        />
-      </Modal>
-      <UpgradeModal open={showUpgrade} onClose={() => setShowUpgrade(false)} />
     </div>
   )
 }
@@ -250,51 +201,6 @@ function PropertyCard({ property, index = 0 }: { property: Property; index?: num
         </div>
       </Card>
     </Link>
-  )
-}
-
-function UpcomingDeadlines({ properties }: { properties: Property[] }) {
-  const items = upcomingDeadlines(properties, 60).slice(0, 5)
-  if (!items.length) return null
-
-  const tone = (s: Deadline['status']) =>
-    s === 'overdue' ? 'text-over' : s === 'soon' ? 'text-due' : 'text-ink-faint'
-
-  return (
-    <Card className="animate-in p-5">
-      <div className="mb-2 flex items-center gap-2">
-        <Calendar size={16} className="text-ink-soft" />
-        <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-faint">Upcoming</h2>
-      </div>
-      <ul className="flex flex-col">
-        {items.map((d, i) => (
-          <Link
-            key={`${d.propertyId}-${d.kind}-${i}`}
-            to={`/property/${d.propertyId}`}
-            className="flex items-center justify-between gap-3 border-b border-line py-2.5 last:border-0 hover:opacity-80"
-          >
-            <div className="flex min-w-0 items-center gap-3">
-              <span className="grid h-8 w-8 shrink-0 place-items-center rounded-lg bg-surface-2 text-ink-soft">
-                {d.kind === 'payment' ? <Receipt size={15} /> : <Calendar size={15} />}
-              </span>
-              <div className="min-w-0">
-                <div className="truncate text-sm text-ink">
-                  {d.label} <span className="text-ink-faint">· {d.propertyName}</span>
-                </div>
-                <div className={cx('text-xs tnum', tone(d.status))}>
-                  {relativeDays(d.date)} · {formatDate(d.date)}
-                </div>
-              </div>
-            </div>
-            {d.amount != null && (
-              <span className="shrink-0 font-medium text-ink tnum">
-                {moneyCompact(d.amount, d.currency)}
-              </span>
-            )}
-          </Link>
-        ))}
-      </ul>
-    </Card>
   )
 }
 

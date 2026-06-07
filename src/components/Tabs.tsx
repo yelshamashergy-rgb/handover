@@ -5,7 +5,7 @@ export interface TabDef {
   label: string
 }
 
-/** Sticky underline tab bar; scrolls horizontally on small screens. */
+/** App-style segmented pill scroller. */
 export function Tabs({
   tabs,
   active,
@@ -19,7 +19,8 @@ export function Tabs({
     <div
       role="tablist"
       aria-label="Property sections"
-      className="sticky top-16 z-30 -mx-4 flex gap-1 overflow-x-auto border-b border-line bg-bg/85 px-4 backdrop-blur-md sm:mx-0 sm:px-0 print:hidden"
+      className="-mx-4 flex gap-2 overflow-x-auto px-4 pb-1 print:hidden"
+      style={{ scrollbarWidth: 'none' }}
     >
       {tabs.map((t) => {
         const on = t.id === active
@@ -31,17 +32,13 @@ export function Tabs({
             aria-selected={on}
             onClick={() => onChange(t.id)}
             className={cx(
-              'relative whitespace-nowrap px-3.5 py-3 text-sm font-medium transition-colors cursor-pointer',
-              on ? 'text-primary' : 'text-ink-soft hover:text-ink',
+              'shrink-0 whitespace-nowrap rounded-full px-4 py-2 text-sm font-medium transition-colors cursor-pointer',
+              on
+                ? 'bg-primary text-primary-ink shadow-[var(--shadow-sm)]'
+                : 'bg-surface-2 text-ink-soft hover:text-ink',
             )}
           >
             {t.label}
-            <span
-              className={cx(
-                'absolute inset-x-2 bottom-0 h-0.5 rounded-full bg-primary transition-opacity',
-                on ? 'opacity-100' : 'opacity-0',
-              )}
-            />
           </button>
         )
       })}
