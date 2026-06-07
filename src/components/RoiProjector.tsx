@@ -1,7 +1,9 @@
 import type { Property } from '../lib/types'
 import { projection } from '../lib/payments'
+import { benchmarkFor, MARKET_AVG_YIELD } from '../lib/benchmarks'
 import { money, pct } from '../lib/format'
 import { cx } from '../ui/primitives'
+import { Sparkle } from '../ui/icons'
 
 function Slider({
   label,
@@ -70,6 +72,45 @@ function Result({
   )
 }
 
+function YieldBenchmark({
+  property,
+  onApply,
+}: {
+  property: Property
+  onApply: (v: number) => void
+}) {
+  const b = benchmarkFor(property.market, property.area)
+  const avg = MARKET_AVG_YIELD[property.market]
+
+  if (b) {
+    const atTyp = Math.abs(property.expectedRentalYieldPct - b.typ) < 0.05
+    return (
+      <button
+        type="button"
+        onClick={() => onApply(b.typ)}
+        className="flex items-center gap-2.5 rounded-xl border border-line bg-surface-2 px-3.5 py-2.5 text-left text-sm transition-colors hover:border-primary cursor-pointer"
+      >
+        <Sparkle size={15} className="shrink-0 text-gold" />
+        <span className="text-ink-soft">
+          <span className="font-medium text-ink">{property.area}</span>: typical{' '}
+          <span className="tnum">
+            {b.min}–{b.max}%
+          </span>{' '}
+          gross.{atTyp ? ' Using benchmark.' : ` Tap to apply ${b.typ}%.`}
+        </span>
+      </button>
+    )
+  }
+  if (avg) {
+    return (
+      <p className="text-xs text-ink-faint tnum">
+        {property.market} market average ≈ {avg}% gross. Add an area in Edit for a community benchmark.
+      </p>
+    )
+  }
+  return null
+}
+
 export function RoiProjector({
   property,
   onChange,
@@ -99,6 +140,9 @@ export function RoiProjector({
           step={0.5}
           onChange={(v) => onChange({ expectedRentalYieldPct: v })}
         />
+
+        <YieldBenchmark property={property} onApply={(v) => onChange({ expectedRentalYieldPct: v })} />
+
         <p className="text-xs leading-relaxed text-ink-faint">
           Projections are illustrative, based on your assumptions — not financial advice.
           {property.sizeSqft && property.serviceChargePerSqft

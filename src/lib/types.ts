@@ -55,6 +55,7 @@ export interface Property {
   name: string
   developer: string
   market: Market
+  area?: string
   currency: Currency
   purchasePrice: number
   /** booking date — anchors the payment schedule */

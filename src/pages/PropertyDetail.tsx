@@ -74,6 +74,7 @@ export function PropertyDetail() {
           <h1 className="font-serif text-3xl text-ink sm:text-4xl">{property.name}</h1>
           <p className="mt-1 text-ink-soft tnum">
             {property.developer && <span>{property.developer} · </span>}
+            {property.area && <span>{property.area} · </span>}
             Handover {formatDate(property.handoverDate)}
           </p>
         </div>
