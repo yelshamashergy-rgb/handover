@@ -7,6 +7,9 @@ handover. Built web-first, structured to wrap into a native iOS app with minimal
 Brand: deep emerald + brass, `Fraunces` + `Inter`. Tagline: *From booking to keys.*
 See [APPSTORE.md](APPSTORE.md) for store listing copy.
 
+**Live:** https://yelshamashergy-rgb.github.io/handover/
+Auto-deploys from `main` via GitHub Actions (`.github/workflows/deploy.yml`).
+
 ## What it does
 
 - **Portfolio dashboard** — roll-up across all properties: total committed, equity
