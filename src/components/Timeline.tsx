@@ -1,7 +1,8 @@
+import { useState } from 'react'
 import type { Payment, Property } from '../lib/types'
 import { daysBetween, formatDate, money, relativeDays } from '../lib/format'
 import { cx, type Status } from '../ui/primitives'
-import { Check, Pencil, Plus, Receipt } from '../ui/icons'
+import { Check, ChevronRight, Pencil, Plus, Receipt } from '../ui/icons'
 
 function statusOf(p: Payment): Status {
   if (p.paid) return 'paid'
@@ -29,21 +30,44 @@ export function Timeline({
   onEditPayment: (payment: Payment) => void
   onAddPayment: () => void
 }) {
+  const [expanded, setExpanded] = useState(false)
+
   const payments = property.payments
     .slice()
     .sort((a, b) => a.dueDate.localeCompare(b.dueDate))
 
+  // Collapsed view focuses on what's actionable: a window starting at the next
+  // unpaid payment. Earlier (mostly paid) and far-future rows are tucked away.
+  const COLLAPSED = 6
+  const collapsible = payments.length > COLLAPSED + 2
+  const firstUnpaid = payments.findIndex((p) => !p.paid)
+  const start =
+    !collapsible || expanded ? 0 : firstUnpaid === -1 ? Math.max(0, payments.length - COLLAPSED) : firstUnpaid
+  const hiddenBefore = collapsible && !expanded ? start : 0
+  const hiddenAfter = collapsible && !expanded ? Math.max(0, payments.length - (start + COLLAPSED)) : 0
+
   return (
     <div>
+      {hiddenBefore > 0 && (
+        <button
+          type="button"
+          onClick={() => setExpanded(true)}
+          className="mb-2 ml-[3px] flex items-center gap-2 text-sm text-ink-soft hover:text-ink cursor-pointer print:hidden"
+        >
+          <ChevronRight size={15} className="-rotate-90" />
+          {hiddenBefore} earlier payment{hiddenBefore > 1 ? 's' : ''} hidden
+        </button>
+      )}
       <ol className="relative">
         <span className="absolute left-[15px] top-3 bottom-3 w-px bg-line" aria-hidden="true" />
 
-        {payments.map((p) => {
+        {payments.map((p, i) => {
           const status = statusOf(p)
           const isPaid = status === 'paid'
           const emphasize = status === 'overdue' || status === 'due'
+          const hiddenRow = collapsible && !expanded && (i < start || i >= start + COLLAPSED)
           return (
-            <li key={p.id} className="relative flex gap-4 pb-1">
+            <li key={p.id} className={cx('relative flex gap-4 pb-1', hiddenRow && 'hidden print:flex')}>
               <div className="relative z-10 mt-3 shrink-0">
                 <span
                   className={cx(
@@ -118,13 +142,34 @@ export function Timeline({
         })}
       </ol>
 
-      <button
-        type="button"
-        onClick={onAddPayment}
-        className="mt-2 ml-[3px] inline-flex items-center gap-2 rounded-xl border border-dashed border-line-strong px-4 py-2.5 text-sm font-medium text-ink-soft hover:border-primary hover:text-primary cursor-pointer transition-colors print:hidden"
-      >
-        <Plus size={16} /> Add payment
-      </button>
+      <div className="mt-2 ml-[3px] flex flex-wrap items-center gap-2 print:hidden">
+        <button
+          type="button"
+          onClick={onAddPayment}
+          className="inline-flex items-center gap-2 rounded-xl border border-dashed border-line-strong px-4 py-2.5 text-sm font-medium text-ink-soft hover:border-primary hover:text-primary cursor-pointer transition-colors"
+        >
+          <Plus size={16} /> Add payment
+        </button>
+        {collapsible && (
+          <button
+            type="button"
+            onClick={() => setExpanded((v) => !v)}
+            className="inline-flex items-center gap-1.5 rounded-xl px-3 py-2.5 text-sm font-medium text-primary hover:bg-primary-tint cursor-pointer transition-colors"
+          >
+            {expanded ? (
+              <>
+                Show fewer <ChevronRight size={15} className="-rotate-90" />
+              </>
+            ) : (
+              <>
+                Show all {payments.length} payments
+                {hiddenAfter > 0 && <span className="text-ink-faint">(+{hiddenAfter})</span>}
+                <ChevronRight size={15} className="rotate-90" />
+              </>
+            )}
+          </button>
+        )}
+      </div>
     </div>
   )
 }
