@@ -39,12 +39,13 @@ export function Upcoming() {
         groups.map((g) => (
           <section key={g.key} className="flex flex-col gap-2">
             <h2 className="text-xs font-semibold uppercase tracking-wider text-ink-faint">{g.label}</h2>
-            <Card className="animate-in divide-y divide-line p-0">
+            <Card className="stagger divide-y divide-line p-0">
               {g.items.map((d, i) => (
                 <Link
                   key={`${d.propertyId}-${i}`}
                   to={`/property/${d.propertyId}`}
-                  className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-2"
+                  style={{ ['--i']: Math.min(i, 8) } as React.CSSProperties}
+                  className="flex items-center justify-between gap-3 px-4 py-3 transition-colors hover:bg-surface-2 active:scale-[0.99]"
                 >
                   <div className="flex min-w-0 items-center gap-3">
                     <span className="grid h-9 w-9 shrink-0 place-items-center rounded-lg bg-surface-2 text-ink-soft">

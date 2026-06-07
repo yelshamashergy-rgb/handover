@@ -41,7 +41,7 @@ export function Modal({
         aria-modal="true"
         aria-label={title}
         className={cx(
-          'relative z-10 w-full bg-surface border border-line shadow-[var(--shadow-lg)] animate-in',
+          'relative z-10 w-full bg-surface border border-line shadow-[var(--shadow-lg)] animate-modal',
           'rounded-t-2xl sm:rounded-2xl max-h-[92dvh] overflow-y-auto',
           size === 'lg' ? 'sm:max-w-2xl' : 'sm:max-w-md',
         )}

@@ -60,11 +60,11 @@ function PortfolioSummary({ properties }: { properties: Property[] }) {
     <Card className="animate-in flex flex-col gap-5 p-5">
       {/* hero */}
       <div className="flex items-center gap-5">
-        <EquityRing pct={s.equityPct} label="equity" />
+        <EquityRing pct={s.equityPct} label="equity" id="home-ring" />
         <div className="min-w-0">
           <div className="text-xs uppercase tracking-wider text-ink-faint">Equity paid</div>
           <div className="whitespace-nowrap font-serif text-2xl leading-tight text-ink tnum">
-            <CountUp value={s.totalPaid} format={(n) => money(n, cur)} />
+            <CountUp value={s.totalPaid} format={(n) => money(n, cur)} id="home-equity" />
           </div>
           <div className="mt-1 text-sm text-ink-soft tnum">
             of {moneyCompact(s.totalCommitted, cur)} committed
@@ -74,11 +74,11 @@ function PortfolioSummary({ properties }: { properties: Property[] }) {
 
       {/* supporting */}
       <div className="grid grid-cols-3 gap-px overflow-hidden rounded-xl border border-line bg-line">
-        <Mini label="Remaining" value={<CountUp value={s.totalRemaining} format={(n) => moneyCompact(n, cur)} />} />
-        <Mini label="Proj. value" value={<CountUp value={s.projectedValue} format={(n) => moneyCompact(n, cur)} />} />
+        <Mini label="Remaining" value={<CountUp value={s.totalRemaining} format={(n) => moneyCompact(n, cur)} id="home-remaining" />} />
+        <Mini label="Proj. value" value={<CountUp value={s.projectedValue} format={(n) => moneyCompact(n, cur)} id="home-projvalue" />} />
         <Mini
           label="Proj. gain"
-          value={<CountUp value={s.projectedGain} format={(n) => moneyCompact(n, cur)} />}
+          value={<CountUp value={s.projectedGain} format={(n) => moneyCompact(n, cur)} id="home-projgain" />}
           tone="gold"
         />
       </div>

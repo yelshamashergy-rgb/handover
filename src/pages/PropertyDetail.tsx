@@ -119,17 +119,17 @@ export function PropertyDetail() {
       <div className="grid grid-cols-2 gap-3">
         <Stat
           label="Purchase price"
-          value={<CountUp value={property.purchasePrice} format={(n) => money(n, property.currency)} />}
+          value={<CountUp value={property.purchasePrice} format={(n) => money(n, property.currency)} id={`${property.id}-price`} />}
         />
         <Stat
           label="Equity paid"
-          value={<CountUp value={s.equityPct} format={(n) => pct(n)} />}
+          value={<CountUp value={s.equityPct} format={(n) => pct(n)} id={`${property.id}-equity`} />}
           sub={money(s.paidTowardPrice, property.currency)}
           tone="primary"
         />
         <Stat
           label="Remaining"
-          value={<CountUp value={s.remainingToPrice} format={(n) => money(n, property.currency)} />}
+          value={<CountUp value={s.remainingToPrice} format={(n) => money(n, property.currency)} id={`${property.id}-remaining`} />}
         />
         <Stat
           label="Next payment"

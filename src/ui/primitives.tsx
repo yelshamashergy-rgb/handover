@@ -34,7 +34,7 @@ export function Button({
     <button
       className={cx(
         'inline-flex items-center justify-center font-medium cursor-pointer select-none',
-        'transition-[background,color,border,transform,filter] duration-150 active:scale-[0.98]',
+        'transition-[background,color,border,transform,filter] duration-150 ease-[var(--ease-out)] active:scale-[0.97]',
         'disabled:opacity-50 disabled:pointer-events-none whitespace-nowrap',
         VARIANTS[variant],
         SIZES[size],

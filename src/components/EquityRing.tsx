@@ -6,13 +6,15 @@ export function EquityRing({
   size = 108,
   stroke = 10,
   label,
+  id,
 }: {
   pct: number
   size?: number
   stroke?: number
   label?: string
+  id?: string
 }) {
-  const v = useCountUp(Math.min(100, Math.max(0, pct)), 900)
+  const v = useCountUp(Math.min(100, Math.max(0, pct)), 900, id)
   const r = (size - stroke) / 2
   const c = 2 * Math.PI * r
   const offset = c * (1 - v / 100)

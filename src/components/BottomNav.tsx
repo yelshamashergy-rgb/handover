@@ -63,12 +63,19 @@ function NavBtn({ item, active, onClick }: { item: Item; active: boolean; onClic
       aria-label={item.label}
       aria-current={active ? 'page' : undefined}
       className={cx(
-        'flex flex-1 flex-col items-center justify-center gap-0.5 rounded-2xl transition-[color,transform] active:scale-90 cursor-pointer',
+        'flex flex-1 items-center justify-center transition-[color,transform] active:scale-90 cursor-pointer',
         active ? 'text-primary' : 'text-ink-faint hover:text-ink-soft',
       )}
     >
-      <span className={cx('transition-transform', active && '-translate-y-px')}>{item.icon}</span>
-      <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
+      <span
+        className={cx(
+          'flex flex-col items-center gap-0.5 rounded-xl px-3 py-1.5 transition-colors duration-200',
+          active && 'bg-primary-tint',
+        )}
+      >
+        {item.icon}
+        <span className="text-[10px] font-medium tracking-wide">{item.label}</span>
+      </span>
     </button>
   )
 }
