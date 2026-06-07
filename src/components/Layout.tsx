@@ -1,10 +1,12 @@
 import { Link } from 'react-router-dom'
-import type { ReactNode } from 'react'
+import { useState, type ReactNode } from 'react'
 import { useStore } from '../store'
-import { Moon, Sun } from '../ui/icons'
+import { Moon, Settings, Sun } from '../ui/icons'
+import { SettingsModal } from './SettingsModal'
 
 export function Layout({ children }: { children: ReactNode }) {
   const { theme, toggleTheme } = useStore()
+  const [settingsOpen, setSettingsOpen] = useState(false)
   return (
     <div className="grain relative min-h-dvh">
       <header className="sticky top-0 z-40 border-b border-line bg-bg/80 backdrop-blur-md print:hidden">
@@ -19,16 +21,28 @@ export function Layout({ children }: { children: ReactNode }) {
             </span>
           </Link>
 
-          <button
-            type="button"
-            onClick={toggleTheme}
-            aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
-            className="grid h-10 w-10 place-items-center rounded-xl border border-line text-ink-soft hover:bg-surface-2 hover:text-ink cursor-pointer transition-colors"
-          >
-            {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
-          </button>
+          <div className="flex items-center gap-2">
+            <button
+              type="button"
+              onClick={toggleTheme}
+              aria-label={`Switch to ${theme === 'dark' ? 'light' : 'dark'} mode`}
+              className="grid h-10 w-10 place-items-center rounded-xl border border-line text-ink-soft hover:bg-surface-2 hover:text-ink cursor-pointer transition-colors"
+            >
+              {theme === 'dark' ? <Sun size={18} /> : <Moon size={18} />}
+            </button>
+            <button
+              type="button"
+              onClick={() => setSettingsOpen(true)}
+              aria-label="Settings"
+              className="grid h-10 w-10 place-items-center rounded-xl border border-line text-ink-soft hover:bg-surface-2 hover:text-ink cursor-pointer transition-colors"
+            >
+              <Settings size={18} />
+            </button>
+          </div>
         </div>
       </header>
+
+      <SettingsModal open={settingsOpen} onClose={() => setSettingsOpen(false)} />
 
       <main className="relative z-10 mx-auto max-w-5xl px-4 pb-24 pt-6 sm:px-6 sm:pt-8">{children}</main>
     </div>

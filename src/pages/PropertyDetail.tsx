@@ -17,7 +17,9 @@ const SmartImport = lazy(() =>
 import { EquityChart } from '../components/EquityChart'
 import { RoiProjector } from '../components/RoiProjector'
 import { ResaleCalculator } from '../components/ResaleCalculator'
+import { MortgageCalculator } from '../components/MortgageCalculator'
 import { DocumentVault } from '../components/DocumentVault'
+import { SnaggingChecklist } from '../components/SnaggingChecklist'
 import { Timeline } from '../components/Timeline'
 import { Modal } from '../components/Modal'
 import { PropertyForm } from '../components/PropertyForm'
@@ -187,6 +189,15 @@ export function PropertyDetail() {
         />
       </Card>
 
+      {/* mortgage at handover */}
+      <Card className="animate-in p-5 sm:p-6">
+        <h2 className="mb-1 font-serif text-xl text-ink">Mortgage at handover</h2>
+        <p className="mb-5 text-sm text-ink-soft">
+          Model financing the balance when you take the keys.
+        </p>
+        <MortgageCalculator property={property} />
+      </Card>
+
       {/* timeline */}
       <Card className="animate-in p-5 sm:p-6">
         <div className="mb-4 flex flex-wrap items-center justify-between gap-3">
@@ -223,6 +234,18 @@ export function PropertyDetail() {
           onUpdate={(id, patch) => updateDocument(property.id, id, patch)}
           onDelete={(id) => deleteDocument(property.id, id)}
           onReconcile={(patch) => setReconciliation(property.id, patch)}
+        />
+      </Card>
+
+      {/* snagging */}
+      <Card className="animate-in p-5 sm:p-6">
+        <h2 className="mb-1 font-serif text-xl text-ink">Handover snagging</h2>
+        <p className="mb-5 text-sm text-ink-soft">
+          Inspect the unit at handover and log every defect to report to the developer.
+        </p>
+        <SnaggingChecklist
+          property={property}
+          onChange={(items) => updateProperty(property.id, { snagging: items })}
         />
       </Card>
 

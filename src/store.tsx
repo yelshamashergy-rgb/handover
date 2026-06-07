@@ -34,6 +34,10 @@ interface Store {
   unlockPro: () => void
   toggleTheme: () => void
   loadSample: () => string
+  onboarded: boolean
+  completeOnboarding: () => void
+  exportData: () => string
+  importData: (json: string) => { ok: boolean; error?: string }
 }
 
 const Ctx = createContext<Store | null>(null)
@@ -42,6 +46,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
   const [properties, setProperties] = useState<Property[]>(() => repo.load().properties)
   const [pro, setPro] = useState<boolean>(() => repo.isPro())
   const [theme, setTheme] = useState<'light' | 'dark'>(() => repo.getTheme())
+  const [onboarded, setOnboarded] = useState<boolean>(() => repo.isOnboarded())
 
   // Persist data whenever it changes.
   useEffect(() => {
@@ -190,6 +195,38 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     return p.id
   }, [])
 
+  const completeOnboarding = useCallback(() => {
+    repo.setOnboarded(true)
+    setOnboarded(true)
+  }, [])
+
+  const exportData = useCallback(
+    () =>
+      JSON.stringify(
+        { app: 'handover', version: 1, exportedAt: new Date().toISOString(), properties, pro },
+        null,
+        2,
+      ),
+    [properties, pro],
+  )
+
+  const importData = useCallback((json: string): { ok: boolean; error?: string } => {
+    try {
+      const parsed = JSON.parse(json)
+      if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.properties)) {
+        return { ok: false, error: 'That doesn’t look like a Handover backup.' }
+      }
+      setProperties(parsed.properties as Property[])
+      if (typeof parsed.pro === 'boolean') {
+        repo.setPro(parsed.pro)
+        setPro(parsed.pro)
+      }
+      return { ok: true }
+    } catch {
+      return { ok: false, error: 'Could not read that file.' }
+    }
+  }, [])
+
   const value = useMemo<Store>(
     () => ({
       properties,
@@ -211,6 +248,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       unlockPro,
       toggleTheme,
       loadSample,
+      onboarded,
+      completeOnboarding,
+      exportData,
+      importData,
     }),
     [
       properties,
@@ -231,6 +272,10 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       unlockPro,
       toggleTheme,
       loadSample,
+      onboarded,
+      completeOnboarding,
+      exportData,
+      importData,
     ],
   )
 

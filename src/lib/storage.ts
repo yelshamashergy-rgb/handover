@@ -3,6 +3,7 @@ import type { AppData } from './types'
 const DATA_KEY = 'handover.v1'
 const PRO_KEY = 'handover.pro'
 const THEME_KEY = 'handover.theme'
+const ONBOARD_KEY = 'handover.onboarded'
 
 // Legacy keys from the "Milestone" working name — migrated on first read.
 const LEGACY = { data: 'milestone.v1', pro: 'milestone.pro', theme: 'milestone.theme' }
@@ -58,5 +59,12 @@ export const repo = {
   },
   setTheme(t: 'light' | 'dark') {
     localStorage.setItem(THEME_KEY, t)
+  },
+
+  isOnboarded(): boolean {
+    return localStorage.getItem(ONBOARD_KEY) === 'true'
+  },
+  setOnboarded(v: boolean) {
+    localStorage.setItem(ONBOARD_KEY, String(v))
   },
 }

@@ -9,10 +9,11 @@ import { ArrowUpRight, Building, Calendar, Plus, Receipt, Sparkle, TrendingUp, W
 import { Modal } from '../components/Modal'
 import { PropertyForm } from '../components/PropertyForm'
 import { UpgradeModal } from '../components/UpgradeModal'
+import { Onboarding } from '../components/Onboarding'
 import type { Property } from '../lib/types'
 
 export function Dashboard() {
-  const { properties, canAddProperty, addProperty, loadSample } = useStore()
+  const { properties, canAddProperty, addProperty, loadSample, onboarded } = useStore()
   const [showForm, setShowForm] = useState(false)
   const [showUpgrade, setShowUpgrade] = useState(false)
   const navigate = useNavigate()
@@ -21,6 +22,13 @@ export function Dashboard() {
 
   return (
     <div className="flex flex-col gap-8">
+      {!onboarded && properties.length === 0 && (
+        <Onboarding
+          onAddProperty={() => setShowForm(true)}
+          onSample={() => navigate(`/property/${loadSample()}`)}
+        />
+      )}
+
       <div className="flex items-end justify-between gap-4">
         <div>
           <h1 className="font-serif text-3xl text-ink sm:text-4xl">Portfolio</h1>

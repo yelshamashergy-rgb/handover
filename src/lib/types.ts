@@ -22,6 +22,15 @@ export interface PropertyDocument {
   addedAt: string
 }
 
+export type SnagStatus = 'pending' | 'ok' | 'issue'
+
+export interface SnagItem {
+  id: string
+  label: string
+  status: SnagStatus
+  note?: string
+}
+
 /** Oqood-vs-SPA reconciliation checklist state */
 export interface Reconciliation {
   nameMatches?: boolean
@@ -74,6 +83,7 @@ export interface Property {
   notes?: string
   documents?: PropertyDocument[]
   reconciliation?: Reconciliation
+  snagging?: SnagItem[]
   createdAt: string
   payments: Payment[]
 }
