@@ -124,8 +124,8 @@
   --color-pos: var(--c-pos);
   --color-neg: var(--c-neg);
 
-  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
-  --font-serif: 'Fraunces', 'Iowan Old Style', Georgia, serif;
+  --font-sans: 'Inter Variable', 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-serif: 'Fraunces Variable', 'Fraunces', 'Iowan Old Style', Georgia, serif;
 
   --radius-card: 16px;
 }

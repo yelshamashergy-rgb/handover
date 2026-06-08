@@ -70,6 +70,16 @@ function startOfDay(d: Date): Date {
   return new Date(d.getFullYear(), d.getMonth(), d.getDate())
 }
 
+/**
+ * Format a Date as YYYY-MM-DD using its LOCAL calendar date.
+ * Never use `toISOString().slice(0,10)` on a local-midnight Date — in positive
+ * UTC offsets (UAE = UTC+4) that rolls back to the previous day.
+ */
+export function toISODate(d: Date): string {
+  const p = (n: number) => String(n).padStart(2, '0')
+  return `${d.getFullYear()}-${p(d.getMonth() + 1)}-${p(d.getDate())}`
+}
+
 export function todayISO(): string {
-  return new Date().toISOString().slice(0, 10)
+  return toISODate(new Date())
 }

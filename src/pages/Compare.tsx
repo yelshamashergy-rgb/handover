@@ -59,6 +59,12 @@ export function Compare() {
           </table>
         </Card>
       )}
+
+      {properties.length >= 2 && (
+        <p className="text-xs text-ink-faint">
+          Projected value, gain, and yield are illustrative — based on your assumptions, not advice.
+        </p>
+      )}
     </div>
   )
 }

@@ -1,13 +1,16 @@
 import { addMonths } from 'date-fns'
 import type { PlanInput, Payment, Property } from './types'
-import { daysBetween } from './format'
+import { daysBetween, toISODate } from './format'
 
+let uidSeq = 0
 export function uid(): string {
   if (typeof crypto !== 'undefined' && 'randomUUID' in crypto) return crypto.randomUUID()
-  return 'id-' + Math.abs(Date.parse(new Date().toISOString())).toString(36) + Math.floor(performance.now()).toString(36)
+  // Fallback: counter guarantees uniqueness even within the same millisecond
+  // (generateSchedule mints many ids in a tight loop).
+  return `id-${Date.now().toString(36)}-${(uidSeq++).toString(36)}-${Math.floor(Math.random() * 1e9).toString(36)}`
 }
 
-const iso = (d: Date) => d.toISOString().slice(0, 10)
+const iso = toISODate
 
 /**
  * Build a full dated payment schedule from a high-level plan.

@@ -94,6 +94,22 @@ export function Settings() {
         </div>
       </Card>
 
+      <Card className="flex flex-col gap-3 p-5">
+        <Title>About</Title>
+        <a
+          href="privacy.html"
+          target="_blank"
+          rel="noopener noreferrer"
+          className="text-sm font-medium text-primary hover:underline"
+        >
+          Privacy policy
+        </a>
+        <p className="text-xs leading-relaxed text-ink-faint">
+          Handover is an organisational tool, not financial or legal advice. Fees, yields, and
+          projections are indicative — verify with the relevant authority before transacting.
+        </p>
+      </Card>
+
       <p className="text-center text-xs text-ink-faint">Handover · From booking to keys.</p>
     </div>
   )

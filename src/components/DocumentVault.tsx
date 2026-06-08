@@ -33,7 +33,10 @@ export function DocumentVault({
 
   async function viewFile(key: string) {
     const url = await getFileURL(key)
-    if (url) window.open(url, '_blank')
+    if (!url) return
+    window.open(url, '_blank')
+    // free the blob URL once the new tab has had time to load it
+    setTimeout(() => URL.revokeObjectURL(url), 60_000)
   }
 
   return (

@@ -38,7 +38,7 @@ export function EquityChart({ property }: { property: Property }) {
   const area = (key: 'planned' | 'paid') =>
     `${line(key)} L ${x(times[times.length - 1]).toFixed(1)} ${(pad.t + innerH).toFixed(1)} L ${x(times[0]).toFixed(1)} ${(pad.t + innerH).toFixed(1)} Z`
 
-  const now = Date.now()
+  const [now] = useState(() => Date.now())
   const showNow = now >= t0 && now <= t1
   const nowX = x(now)
 

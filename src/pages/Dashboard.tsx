@@ -109,6 +109,7 @@ function PortfolioSummary({ properties }: { properties: Property[] }) {
           currencies not included.
         </p>
       )}
+      <p className="text-[11px] text-ink-faint">Projected figures are illustrative, not advice.</p>
     </Card>
   )
 }

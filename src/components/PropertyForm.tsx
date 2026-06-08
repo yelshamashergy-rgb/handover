@@ -4,7 +4,7 @@ import type { Currency, Frequency, Market, Property, UnitType } from '../lib/typ
 import { allocatedPct, generateSchedule } from '../lib/payments'
 import { defaultResaleThreshold } from '../lib/costs'
 import { areasFor, benchmarkFor, UNIT_TYPES } from '../lib/benchmarks'
-import { money, pct, todayISO } from '../lib/format'
+import { money, pct, todayISO, toISODate } from '../lib/format'
 import { Button, Field, Segmented, cx, inputCls } from '../ui/primitives'
 import { Alert } from '../ui/icons'
 
@@ -39,7 +39,7 @@ const DEVELOPERS = [
   'RAK Properties',
 ]
 
-const iso = (d: Date) => d.toISOString().slice(0, 10)
+const iso = toISODate
 
 export type NewPropertyData = Omit<Property, 'id' | 'createdAt'>
 

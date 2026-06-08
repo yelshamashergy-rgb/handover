@@ -3,10 +3,11 @@ import workerUrl from 'pdfjs-dist/build/pdf.worker.min.mjs?url'
 import { addMonths } from 'date-fns'
 import type { Payment, PaymentType } from './types'
 import { uid } from './payments'
+import { toISODate } from './format'
 
 pdfjsLib.GlobalWorkerOptions.workerSrc = workerUrl
 
-const iso = (d: Date) => d.toISOString().slice(0, 10)
+const iso = toISODate
 
 /** Extract all text from a PDF, fully in-browser (no upload). */
 export async function extractTextFromPDF(file: File): Promise<string> {
@@ -87,10 +88,11 @@ export function parseSchedule(
   const down = singles.find((f) => f.type === 'downpayment')
   if (down) mk(down.label || 'Down payment', 'downpayment', down.pct, booking)
 
-  if (monthly) {
-    const pct = parseFloat(monthly[1])
-    const count = Math.min(120, parseInt(monthly[2], 10))
-    for (let i = 1; i <= count; i++) mk(`Installment ${i}`, 'installment', pct, addMonths(booking, i))
+  const mPct = monthly ? parseFloat(monthly[1]) : NaN
+  const mCount = monthly ? parseInt(monthly[2], 10) : NaN
+  if (Number.isFinite(mPct) && Number.isFinite(mCount) && mCount > 0) {
+    const count = Math.min(120, mCount)
+    for (let i = 1; i <= count; i++) mk(`Installment ${i}`, 'installment', mPct, addMonths(booking, i))
   } else {
     // distribute discrete installments evenly across the build period
     const n = installmentEntries.length
@@ -105,6 +107,23 @@ export function parseSchedule(
     if (f.type === 'downpayment') continue
     if (f.type === 'handover') mk(f.label || 'Handover', 'handover', f.pct, handover)
     else mk(f.label, f.type, f.pct, midpoint(booking, handover))
+  }
+
+  // Balance to the price if the parse under-allocated (mirrors generateSchedule),
+  // so the imported schedule reconciles instead of silently understating commitment.
+  const allocated = payments.reduce((s, p) => s + p.amount, 0)
+  const hasHandover = payments.some((p) => p.type === 'handover')
+  if (!hasHandover && price > 0 && allocated < price * 0.995) {
+    const remainder = price - allocated
+    payments.push({
+      id: uid(),
+      label: 'Handover (balance)',
+      type: 'handover',
+      dueDate: handoverDate,
+      amount: Math.round(remainder),
+      percentage: Math.round((remainder / price) * 1000) / 10,
+      paid: false,
+    })
   }
 
   payments.sort((a, b) => a.dueDate.localeCompare(b.dueDate))

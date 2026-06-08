@@ -34,6 +34,8 @@ export default defineConfig({
       workbox: {
         globPatterns: ['**/*.{js,css,html,svg,png,woff2,mjs}'],
         maximumFileSizeToCacheInBytes: 4 * 1024 * 1024,
+        // Don't let the SPA navigation fallback hijack the standalone privacy page.
+        navigateFallbackDenylist: [/privacy\.html/],
       },
     }),
   ],

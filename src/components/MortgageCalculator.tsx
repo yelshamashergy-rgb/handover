@@ -20,7 +20,8 @@ export function MortgageCalculator({ property }: { property: Property }) {
   const maxMortgage = (price * ltv) / 100
   const financed = Math.min(maxMortgage, remaining)
   const cashAtHandover = Math.max(0, remaining - maxMortgage)
-  const { monthly, totalInterest } = mortgage(financed, rate, term)
+  const valid = financed > 0 && term > 0
+  const { monthly, totalInterest } = valid ? mortgage(financed, rate, term) : { monthly: 0, totalInterest: 0 }
 
   return (
     <div className="grid gap-5 lg:grid-cols-2">
@@ -81,8 +82,13 @@ export function MortgageCalculator({ property }: { property: Property }) {
           value={cashAtHandover > 0 ? money(cashAtHandover, cur) : 'Covered'}
           tone={cashAtHandover > 0 ? 'ink' : 'pos'}
         />
-        <Result label="Total interest" value={money(totalInterest, cur)} />
-        <Result label="Monthly repayment" value={money(monthly, cur)} tone="primary" big />
+        <Result label="Total interest" value={valid ? money(totalInterest, cur) : '—'} />
+        <Result
+          label="Monthly repayment"
+          value={valid ? money(monthly, cur) : '—'}
+          tone="primary"
+          big
+        />
       </div>
     </div>
   )

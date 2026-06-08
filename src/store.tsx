@@ -10,6 +10,7 @@ import {
 import type { Payment, Property, PropertyDocument, Reconciliation } from './lib/types'
 import { repo } from './lib/storage'
 import { uid } from './lib/payments'
+import { todayISO } from './lib/format'
 import { sampleProperty } from './lib/sample'
 
 export const FREE_LIMIT = 1
@@ -90,7 +91,7 @@ export function StoreProvider({ children }: { children: ReactNode }) {
               ? {
                   ...pay,
                   paid: !pay.paid,
-                  paidDate: !pay.paid ? new Date().toISOString().slice(0, 10) : undefined,
+                  paidDate: !pay.paid ? todayISO() : undefined,
                 }
               : pay,
           ),
@@ -200,14 +201,16 @@ export function StoreProvider({ children }: { children: ReactNode }) {
     setOnboarded(true)
   }, [])
 
+  // Note: the Pro entitlement is intentionally NOT in the backup — it must come from
+  // a verified StoreKit purchase, never a hand-editable file.
   const exportData = useCallback(
     () =>
       JSON.stringify(
-        { app: 'handover', version: 1, exportedAt: new Date().toISOString(), properties, pro },
+        { app: 'handover', version: 1, exportedAt: new Date().toISOString(), properties },
         null,
         2,
       ),
-    [properties, pro],
+    [properties],
   )
 
   const importData = useCallback((json: string): { ok: boolean; error?: string } => {
@@ -216,11 +219,15 @@ export function StoreProvider({ children }: { children: ReactNode }) {
       if (!parsed || parsed.version !== 1 || !Array.isArray(parsed.properties)) {
         return { ok: false, error: 'That doesn’t look like a Handover backup.' }
       }
-      setProperties(parsed.properties as Property[])
-      if (typeof parsed.pro === 'boolean') {
-        repo.setPro(parsed.pro)
-        setPro(parsed.pro)
-      }
+      // Defensively keep only well-formed properties so a malformed file can't crash the app.
+      const valid = (parsed.properties as unknown[]).filter(
+        (p): p is Property =>
+          !!p &&
+          typeof (p as Property).id === 'string' &&
+          typeof (p as Property).purchasePrice === 'number' &&
+          Array.isArray((p as Property).payments),
+      )
+      setProperties(valid)
       return { ok: true }
     } catch {
       return { ok: false, error: 'Could not read that file.' }

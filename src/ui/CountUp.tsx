@@ -10,6 +10,7 @@ const SEEN = new Map<string, number>()
 
 /** Animate a number to `target` (easeOutCubic, rAF). With `id`, animates from 0
  *  only the first time per session; later mounts start from the last value. */
+// eslint-disable-next-line react-refresh/only-export-components
 export function useCountUp(target: number, duration = 700, id?: string): number {
   const initial = id && SEEN.has(id) ? (SEEN.get(id) as number) : 0
   const [val, setVal] = useState(() => (reduced() ? target : initial))
@@ -18,6 +19,7 @@ export function useCountUp(target: number, duration = 700, id?: string): number 
 
   useEffect(() => {
     if (reduced()) {
+      // eslint-disable-next-line react-hooks/set-state-in-effect
       setVal(target)
       fromRef.current = target
       if (id) SEEN.set(id, target)

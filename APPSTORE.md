@@ -76,6 +76,36 @@ P&L, document vault, and on-device PDF import.
   (Benchmark: Stessa/Landlord Studio sit at ~$12–28/mo; a one-time unlock is the
   differentiator for a private, set-and-forget tool.)
 
+## Pre-submission checklist (Apple) — do these at the Capacitor/iOS stage
+
+**Hard blockers (will cause rejection if skipped):**
+1. **In-App Purchase for Pro (Guideline 3.1.1).** The "Pro" unlock currently flips a
+   local flag (a placeholder). Before submission it MUST be a real **StoreKit**
+   Non-Consumable:
+   - Create the product in App Store Connect; **read the localized price from StoreKit**
+     (don't hardcode "$14.99").
+   - Wire it in `store.tsx → unlockPro` via a Capacitor StoreKit bridge
+     (`@capacitor-community/in-app-purchases` or RevenueCat).
+   - Add a **"Restore Purchases"** button (required for non-consumables) — natural home is
+     the Settings → Plan card.
+   - Entitlement comes only from the verified transaction (the backup file no longer
+     carries `pro`, so there's no bypass).
+2. **Privacy policy URL** — already published at `/privacy.html`
+   (e.g. `https://handover-offplan.netlify.app/privacy.html`). Enter it in App Store Connect.
+   App Privacy: **Data Not Collected** (accurate — no network, no analytics).
+3. **App icon** — the 1024 marketing icon is now flat RGB (no alpha). ✓
+
+**Info.plist (set during the Capacitor wrap):**
+- `ITSAppUsesNonExemptEncryption = false` (only standard HTTPS/`randomUUID`; avoids the
+  export-compliance prompt every build).
+- Usage strings only if you add native Camera/Filesystem later. The current document
+  attach uses a plain file input → no photo/camera string needed.
+- If you add `@capacitor/local-notifications` for real reminders, add the permission flow
+  (and only then can the listing claim push/local reminders).
+
+**N/A (confirmed):** account deletion 5.1.1 (no accounts), App Tracking Transparency
+(no IDFA/analytics), external-payment links (none).
+
 ## Screenshot captions
 
 1. Every payment, from booking to keys.

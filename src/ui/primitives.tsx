@@ -1,5 +1,6 @@
 import type { ButtonHTMLAttributes, ReactNode } from 'react'
 
+// eslint-disable-next-line react-refresh/only-export-components
 export const cx = (...a: (string | false | null | undefined)[]) => a.filter(Boolean).join(' ')
 
 /* ----------------------------------------------------------------- Button */

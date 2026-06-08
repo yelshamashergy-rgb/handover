@@ -1,8 +1,9 @@
 import { addMonths } from 'date-fns'
 import type { Property } from './types'
 import { generateSchedule, uid } from './payments'
+import { toISODate } from './format'
 
-const iso = (d: Date) => d.toISOString().slice(0, 10)
+const iso = toISODate
 
 /** A believable Dubai off-plan property, mid-way through its plan. */
 export function sampleProperty(): Property {

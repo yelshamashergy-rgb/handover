@@ -16,6 +16,12 @@ const targets = [
 ]
 
 for (const [name, size] of targets) {
-  await sharp(svg, { density: 384 }).resize(size, size).png().toFile(join(pub, name))
+  // flatten() drops the alpha channel — Apple rejects the 1024 marketing icon if it
+  // has alpha/transparency. The icon is full-bleed emerald, so this is lossless.
+  await sharp(svg, { density: 384 })
+    .resize(size, size)
+    .flatten({ background: '#0E5C4A' })
+    .png()
+    .toFile(join(pub, name))
   console.log(`✓ ${name} (${size}px)`)
 }
