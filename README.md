@@ -81,7 +81,25 @@ npm i @capacitor/core @capacitor/ios && npx cap init
 npm run build && npx cap add ios && npx cap open ios
 ```
 
-Two things move to native at that point, both already isolated:
-1. **Storage** — swap the `repo` implementation for `@capacitor/preferences` or SQLite.
-2. **Notifications** — real local push (payment-due reminders) via
+Everything that becomes native is already isolated behind a boundary, so it's a swap
+not a refactor:
+
+1. **Storage + iCloud backup** (the chosen data-safety approach — no accounts, no
+   backend). Two boundaries to swap:
+   - `src/lib/storage.ts` (`repo`) — the only place app data is read/written. Swap
+     `localStorage` for **`@capacitor/preferences`** (stored in native `UserDefaults`,
+     which is included in the device's **iCloud backup**) so changing phones restores
+     everything. Do **not** mark it excluded-from-backup.
+   - `src/lib/filestore.ts` — document file blobs (IndexedDB on web). Swap for
+     **`@capacitor/filesystem`** writing to a backed-up directory (e.g. `Directory.Data`).
+   Net effect: device-change recovery for free via Apple, data stays private on-device.
+   (Web keeps the manual Settings → Export/Restore backup as its safety net.)
+2. **Notifications** — real local reminders (payment due, NOC expiry, Oqood window) via
    `@capacitor/local-notifications`. The web build shows due-soon indicators only.
+3. **PDF import** — optionally upgrade the heuristic parser to Apple Foundation Models
+   (`@Generable`) on-device. The current pdf.js path keeps working as a fallback.
+
+> Data-strategy decision (2026-06): use **iCloud / native device backup**, not
+> accounts/cloud-sync. Keeps the app zero-maintenance, zero-liability, and fully private
+> — the core of the passive-income model. Revisit opt-in Supabase only if real demand for
+> cross-device/web sync appears post-launch.
